@@ -18,10 +18,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        tasks = createTask()
         
         tableView.dataSource = self
         tableView.delegate = self
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        getTasks()
+        tableView.reloadData()
     }
 
     override func didReceiveMemoryWarning() {
@@ -37,30 +41,44 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let cell = UITableViewCell()
         let task = tasks[indexPath.row]
         if task.important {
-        cell.textLabel?.text = task.name + "❗"
+        cell.textLabel?.text = task.name! + "❗"
         } else {
-            cell.textLabel?.text = task.name
+            cell.textLabel?.text = task.name!
         }
         return cell
     }
     
-    func createTask() -> [Task] {
-        
-        let task1 = Task()
-        task1.name = "Finish App"
-        task1.important = true
-        
-        let task2 = Task()
-        task2.name = "Do Stuff"
-        task2.important = false
-        
-        return [task1, task2]
-        
-    }
-    @IBAction func buttonTapped(_ sender: Any) {
-        performSegue(withIdentifier: "addSegue", sender: nil)
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+       
+        let task = tasks[indexPath.row]
+        performSegue(withIdentifier: "singleTaskSegue", sender: task)
     }
     
-
+    @IBAction func buttonTapped(_ sender: AnyObject) {
+        performSegue(withIdentifier: "addSegue", sender: nil)
+         
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if segue.identifier == "singleTaskSegue" {
+            let nextVC = segue.destination as!
+            SingleTaskViewController;
+            
+             nextVC.task = sender as? Task
+            
+        }
+        
+    }
+    
+    func getTasks() {
+        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        do {
+        tasks = try context.fetch(Task.fetchRequest()) as! [Task]
+        } catch {
+            print("ERROR")
+        }
+    }
+    
 }
 

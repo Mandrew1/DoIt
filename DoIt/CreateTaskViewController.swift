@@ -10,10 +10,13 @@ import UIKit
 
 class CreateTaskViewController: UIViewController {
 
-    @IBOutlet var importantSwitch: UIView!
-    @IBOutlet var taskNameTextField: UITextField!
+    
+    @IBOutlet weak var realTaskNameField: UITextField!
+    @IBOutlet weak var realImportantSwitch: UISwitch!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+       
 
         // Do any additional setup after loading the view.
     }
@@ -25,8 +28,19 @@ class CreateTaskViewController: UIViewController {
     
 
     @IBAction func addTap(_ sender: Any) {
-        let task = Task()
-        task.name = taskNameTextField.text!
+        
+       let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        
+        
+        let task = Task(context: context)
+        
+        task.name = realTaskNameField.text!
+        task.important = realImportantSwitch.isOn
+        
+        (UIApplication.shared.delegate as! AppDelegate).saveContext()
+        
+        
+        navigationController!.popViewController(animated: true)
         
     }
 
